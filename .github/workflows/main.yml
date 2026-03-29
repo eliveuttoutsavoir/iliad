@@ -1,0 +1,39 @@
+on:
+  repository_dispatch:
+    types: [test]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'information'
+        type: choice
+        options:
+          - information
+          - debug
+          - warning
+      environment:
+        description: 'Target environment'
+        type: environment
+        required: false
+      version:
+        description: 'Version number'
+        type: string
+        required: false
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "dispatch received"
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Needed for OIDC
+      contents: read
+      attestations: write # Needed to create the attestation
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "build" > my-app # Example build
+      - uses: actions/attest@v4
+        with:
+          subject-path: '${{ github.workspace }}/my-app'
